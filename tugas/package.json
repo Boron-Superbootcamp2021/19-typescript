@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "nyc mocha",
+    "svc:start": "node .",
+    "svc:dev": "nodemon .",
     "service": "ts-node --project service/tsconfig.json service/server.ts",
     "service:dev": "nodemon --config service/nodemon.json",
     "lint": "eslint .",
