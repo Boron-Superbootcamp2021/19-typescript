@@ -1,11 +1,10 @@
-import { createConnection } from 'typeorm';
+import { createConnection, EntitySchema, ConnectionOptions, } from 'typeorm';
 
 
-export function connect(entities:string[], config:any) {
+export function connect(entities:EntitySchema[], config:ConnectionOptions) {
   return createConnection({
     ...config,
     synchronize: true,
-    timezone: 'Asia/Jakarta',
     entities,
   });
 }

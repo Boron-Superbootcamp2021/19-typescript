@@ -6,10 +6,6 @@ export const ERROR_FILE_NOT_FOUND = 'error file tidak ditemukan';
 
 let client;
 let bucketname;
-interface Storage{
-  client: any;
-  bucketname:String;
-}
 
 export async function connect(_bucketname:string, options:any) {
   client = new Client({
@@ -37,7 +33,7 @@ function randomFileName(mimetype:string):string {
   );
 }
 
-export function saveFile(file:any, mimetype:string):Promise<string> {
+export function saveFile(file:any, mimetype:string):Promise<any> {
   const objectName = randomFileName(mimetype);
   return new Promise((resolve, reject) => {
     client.putObject(bucketname, objectName, file, (err) => {
@@ -50,7 +46,7 @@ export function saveFile(file:any, mimetype:string):Promise<string> {
   });
 }
 
-export async function readFile<T>(objectName:string):Promise<T> {
+export async function readFile(objectName:string):Promise<any> {
   if (!objectName) {
     throw ERROR_REQUIRE_OBJECT_NAME;
   }

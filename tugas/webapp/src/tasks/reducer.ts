@@ -7,12 +7,13 @@ interface Task{
   assignee:any;
   attachment:string;
   done:boolean;
+  cancelled:boolean;
 }
 interface State{
   loading:boolean;
   error:any;
-  workers:[];
-  tasks:Task[];
+  workers:any;
+  tasks:any;
 }
 interface ActionObject{
   type:string;
@@ -27,28 +28,32 @@ interface ActionObjectDone extends ActionObject{
   payload:number;
 }
 type ActionObjectCancel = ActionObjectDone;
-const initialState:State = {
+interface ActionObjectLoaded extends ActionObject{
+  payload:Task[]
+}
+
+export const initialState:State = {
   loading: false,
   error: null,
   workers: [],
   tasks: [],
 };
 
-function loading(state:State) {
+export function loading(state:State) {
   state.loading = true;
   state.error = null;
 }
 
-function error(state:State, action:ActionObjectError) {
+export function error(state:State, action:ActionObjectError) {
   state.loading = false;
   state.error = action.payload;
 }
 
-function clearError(state:State) {
+export function clearError(state:State) {
   state.error = null;
 }
 
-function added(state:State, action:ActionObjectAdd):State {
+export function added(state:State, action:ActionObjectAdd):State {
   const task = action.payload;
   state.tasks.push({
     id: task.id,
@@ -62,7 +67,7 @@ function added(state:State, action:ActionObjectAdd):State {
   return state;
 }
 
-function done(state:State, action:ActionObjectDone):State {
+export function done(state:State, action:ActionObjectDone):State {
   const idx = state.tasks.findIndex((t) => t.id === action.payload);
   state.tasks[idx].done = true;
   state.loading = false;
@@ -70,7 +75,7 @@ function done(state:State, action:ActionObjectDone):State {
   return state;
 }
 
-function canceled(state:State, action:ActionObjectCancel):State {
+export function canceled(state:State, action:ActionObjectCancel):State {
   const idx = state.tasks.findIndex((t) => t.id === action.payload);
   state.tasks.splice(idx, 1);
   state.loading = false;
@@ -78,7 +83,7 @@ function canceled(state:State, action:ActionObjectCancel):State {
   return state;
 }
 
-function tasksLoaded(state, action) {
+export function tasksLoaded(state:State, action:ActionObjectLoaded):State {
   state.tasks = action.payload
     .filter((t) => !t.cancelled)
     .map((task) => ({
@@ -93,7 +98,7 @@ function tasksLoaded(state, action) {
   return state;
 }
 
-function workersLoaded(state, action) {
+export function workersLoaded(state, action) {
   state.workers = action.payload.map((worker) => ({
     id: worker.id,
     name: worker.name,
@@ -103,14 +108,4 @@ function workersLoaded(state, action) {
   return state;
 }
 
-module.exports = {
-  initialState,
-  added,
-  done,
-  canceled,
-  tasksLoaded,
-  workersLoaded,
-  error,
-  loading,
-  clearError,
-};
+
