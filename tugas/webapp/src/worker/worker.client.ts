@@ -2,7 +2,7 @@ import { client } from '../lib/http-client';
 
 import { SERVICE_BASEURL } from './config';
 
-export function register(data:Worker) {
+export function register(data) {
   return client.post(`${SERVICE_BASEURL}/register`, data);
 }
 

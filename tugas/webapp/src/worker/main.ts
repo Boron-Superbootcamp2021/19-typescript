@@ -36,7 +36,7 @@ if (form){
     store$.dispatch<any>(
       register({
         name: name.nodeValue,
-        photo: photo.files[0],
+        photo: (<HTMLImageElement>photo).files[0],
         age: age.nodeValue,
         bio: bio.nodeValue,
         address: address.nodeValue,
@@ -44,7 +44,7 @@ if (form){
     );
 
     // reset form
-    form.reset();
+    (<HTMLFormElement>form).reset();
   };
 } else {
   // handle error
@@ -76,9 +76,9 @@ function render(state) {
     return
   }
   if (state.loading) {
-    loadingTxt.style = '';
+    loadingTxt.style.display = '';
   } else {
-    loadingTxt.style = 'display:none;';
+    loadingTxt.style.display = 'none;';
   }
 
   // render list of worker
