@@ -1,19 +1,23 @@
 import { SERVICE_BASEURL } from './config';
+import {TaskInterface,WorkerInterface} from '../../../service/tasks/task.model'
 
 // setup state
-interface Task{
+interface TaskState{
   id:number;
   job:string;
-  assignee:any;
+  assignee:string;
   attachment:string;
   done:boolean;
-  cancelled:boolean;
 }
-interface State{
+interface WorkerState{
+  id:number;
+  name:string
+}
+export interface State{
   loading:boolean;
   error:any;
-  workers:any;
-  tasks:any;
+  workers:WorkerState[];
+  tasks:TaskState[];
 }
 interface ActionObject{
   type:string;
@@ -22,14 +26,17 @@ interface ActionObjectError extends ActionObject{
   payload:any;
 }
 interface ActionObjectAdd extends ActionObject{
-  payload:Task
+  payload:TaskInterface
 }
 interface ActionObjectDone extends ActionObject{
   payload:number;
 }
 type ActionObjectCancel = ActionObjectDone;
 interface ActionObjectLoaded extends ActionObject{
-  payload:Task[]
+  payload:TaskInterface[]
+}
+interface ActionObjectWorkerLoad extends ActionObject{
+  payload:WorkerInterface[]
 }
 
 export const initialState:State = {
@@ -98,7 +105,7 @@ export function tasksLoaded(state:State, action:ActionObjectLoaded):State {
   return state;
 }
 
-export function workersLoaded(state, action) {
+export function workersLoaded(state:State, action:ActionObjectWorkerLoad):State {
   state.workers = action.payload.map((worker) => ({
     id: worker.id,
     name: worker.name,
