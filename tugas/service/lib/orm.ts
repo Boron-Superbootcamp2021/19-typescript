@@ -1,9 +1,11 @@
-import { createConnection, ConnectionOptions, EntitySchema } from 'typeorm';
+import { createConnection, EntitySchema, ConnectionOptions, } from 'typeorm';
 
-export function connect(entities: EntitySchema[], config:ConnectionOptions) {
+
+export function connect(entities:EntitySchema[], config:ConnectionOptions) {
   return createConnection({
     ...config,
     synchronize: true,
     entities,
   });
 }
+

@@ -1,37 +1,37 @@
-const { createServer } = require('http');
-const url = require('url');
-const { stdout } = require('process');
-const { summarySvc } = require('./performance.service');
-const agg = require('./performance.agg');
+import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
+import * as url from 'url';
+import { stdout } from 'process';
+import { summarySvc } from './performance.service';
+import * as agg from './performance.agg';
 
-let server;
+let server: Server;
 
-function run(callback) {
-  server = createServer((req, res) => {
+export function run(callback: () => void){
+  server = createServer((req: IncomingMessage, res: ServerResponse) => {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
       return;
     }
 
-    function respond(statusCode, message) {
+    function respond(statusCode: number, message: string) {
       res.statusCode = statusCode || 200;
       res.write(message || '');
       res.end();
     }
 
     try {
-      const uri = url.parse(req.url, true);
-      switch (uri.pathname) {
+      const uri:url.UrlWithParsedQuery  = url.parse(req.url!, true);
+      switch (uri?.pathname) {
         case '/summary':
-          if (req.method === 'GET') {
+          if (req?.method === 'GET') {
             return summarySvc(req, res);
           } else {
-            respond(404);
+            respond(404,'tidak ketemu');
           }
           break;
         default:
-          respond(404);
+          respond(404,'tidak ketemu');
       }
     } catch (err) {
       respond(500, 'unkown server error');
@@ -50,13 +50,13 @@ function run(callback) {
   });
 
   // run server
-  const PORT = 7003;
+  const PORT: number = 7003;
   server.listen(PORT, () => {
     stdout.write(`🚀 performance service listening on port ${PORT}\n`);
   });
 }
 
-function cors(req, res) {
+export function cors(req: IncomingMessage, res: ServerResponse): boolean|undefined {
   // handle preflight request
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
@@ -70,14 +70,8 @@ function cors(req, res) {
   }
 }
 
-function stop() {
+export function stop(): void{
   if (server) {
     server.close();
   }
 }
-
-module.exports = {
-  run,
-  stop,
-  cors,
-};
