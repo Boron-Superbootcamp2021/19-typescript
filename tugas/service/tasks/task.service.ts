@@ -17,7 +17,7 @@ import {IncomingMessage,ServerResponse} from 'http'
 export function addSvc(req:IncomingMessage, res:ServerResponse) {
   const busboy = new Busboy({ headers: req.headers });
 
-  const data:DataTask = {
+  let data:DataTask = {
     job: '',
     assigneeId: 0,
     attachment: '',
