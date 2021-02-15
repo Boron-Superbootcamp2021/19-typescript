@@ -1,13 +1,13 @@
-const {
+import {
   done,
   cancel,
   getList,
   add,
   getWorkersList,
-} = require('./async-action');
-const { store$, errorAction, clearErrorAction } = require('./store');
+} from './async-action';
+import { store$, errorAction, clearErrorAction } from './store';
 
-require('./main.css');
+import './main.css';
 
 const form = document.getElementById('form');
 const job = document.getElementById('job');
@@ -17,18 +17,21 @@ const list = document.getElementById('list');
 const errorTxt = document.getElementById('error-text');
 const loadingTxt = document.getElementById('loading-text');
 
-form.onsubmit = (event) => {
-  event.preventDefault();
-  store$.dispatch(clearErrorAction());
-  if (
-    !job.value ||
-    !assignee.options[assignee.selectedIndex] ||
-    !attachment.files[0]
-  ) {
-    store$.dispatch(errorAction('form isian tidak lengkap!'));
-    return;
-  }
-
+if(form){
+  form.onsubmit = (event) => {
+    event.preventDefault();
+    store$.dispatch(clearErrorAction());
+    if(job && assignee && attachment){
+      if (
+        !job.value ||
+        !assignee.options[assignee.selectedIndex] ||
+        !attachment.files[0]
+      ) {
+        store$.dispatch(errorAction('form isian tidak lengkap!'));
+        return;
+      }
+    }  
+}
   // register user
   store$.dispatch(
     add({
