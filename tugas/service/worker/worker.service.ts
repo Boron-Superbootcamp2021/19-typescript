@@ -1,18 +1,19 @@
-const Busboy = require('busboy');
-const url = require('url');
-const mime = require('mime-types');
-const { Writable } = require('stream');
-const {
+import { Busboy } from 'busboy';
+import * as url  from 'url';
+import { mime } from 'mime-types';
+import { Writable } from 'stream';
+import {
   register,
   list,
   remove,
   info,
   ERROR_REGISTER_DATA_INVALID,
   ERROR_WORKER_NOT_FOUND,
-} = require('./worker');
-const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
+} from './worker';
+import { saveFile, readFile, ERROR_FILE_NOT_FOUND } from '../lib/storage';
+import { IncomingMessage, ServerResponse } from 'http';
 
-function registerSvc(req, res) {
+export function registerSvc(req: IncomingMessage, res: ServerResponse) {
   const busboy = new Busboy({ headers: req.headers });
 
   const data = {
@@ -36,6 +37,12 @@ function registerSvc(req, res) {
   busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
     switch (fieldname) {
       case 'photo':
+        // if(!data.photo) {
+        //   res.statusCode = 400;
+        //   res.write('Worker doesnt have a photo');
+        //   res.end();
+        //   return;
+        // }
         try {
           data.photo = await saveFile(file, mimetype);
         } catch (err) {
@@ -84,7 +91,7 @@ function registerSvc(req, res) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res) {
+export async function listSvc(req:IncomingMessage, res: ServerResponse): Promise<void> {
   try {
     const workers = await list();
     res.setHeader('content-type', 'application/json');
@@ -97,7 +104,7 @@ async function listSvc(req, res) {
   }
 }
 
-async function infoSvc(req, res) {
+export async function infoSvc(req:IncomingMessage, res:ServerResponse):Promise<void> {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
@@ -124,7 +131,7 @@ async function infoSvc(req, res) {
   }
 }
 
-async function removeSvc(req, res) {
+export async function removeSvc(req:IncomingMessage, res:ServerResponse):Promise<void> {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
@@ -152,7 +159,7 @@ async function removeSvc(req, res) {
   }
 }
 
-async function getPhotoSvc(req, res) {
+export async function getPhotoSvc(req:IncomingMessage, res:ServerResponse):Promise<void> {
   const uri = url.parse(req.url, true);
   const objectName = uri.pathname.replace('/photo/', '');
   if (!objectName) {
@@ -178,11 +185,3 @@ async function getPhotoSvc(req, res) {
     return;
   }
 }
-
-module.exports = {
-  listSvc,
-  registerSvc,
-  infoSvc,
-  removeSvc,
-  getPhotoSvc,
-};

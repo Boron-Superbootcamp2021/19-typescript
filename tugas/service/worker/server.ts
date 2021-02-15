@@ -1,17 +1,17 @@
-const { createServer } = require('http');
-const url = require('url');
-const { stdout } = require('process');
-const {
+import { createServer, IncomingMessage, ServerOptions } from 'http';
+import * as url from "url";
+import { stdout } from 'process';
+import {
   listSvc,
   registerSvc,
   removeSvc,
   infoSvc,
   getPhotoSvc,
-} = require('./worker.service');
+} from "./worker.service";
 
 let server;
 
-function run(callback) {
+export function run(callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -32,35 +32,35 @@ function run(callback) {
           if (req.method === 'POST') {
             return registerSvc(req, res);
           } else {
-            respond(404);
+            respond(404,'Method tidak tersedia');
           }
           break;
         case '/list':
           if (req.method === 'GET') {
             return listSvc(req, res);
           } else {
-            respond(404);
+            respond(404,'Method tidak tersedia');
           }
           break;
         case '/info':
           if (req.method === 'GET') {
             return infoSvc(req, res);
           } else {
-            respond(404);
+            respond(404,'Method tidak tersedia');
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
             return removeSvc(req, res);
           } else {
-            respond(404);
+            respond(404,'Method tidak tersedia');
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
             return getPhotoSvc(req, res);
           }
-          respond(404);
+          respond(404,'Method tidak tersedia');
       }
     } catch (err) {
       respond(500, 'unkown server error');
@@ -81,7 +81,7 @@ function run(callback) {
   });
 }
 
-function cors(req, res) {
+export function cors(req, res) {
   // handle preflight request
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
@@ -98,14 +98,8 @@ function cors(req, res) {
   }
 }
 
-function stop() {
+export function stop() {
   if (server) {
     server.close();
   }
 }
-
-module.exports = {
-  run,
-  stop,
-  cors,
-};

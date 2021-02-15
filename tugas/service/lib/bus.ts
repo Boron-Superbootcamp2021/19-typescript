@@ -1,8 +1,9 @@
-const nats = require('nats');
+import { nats } from 'nats';
+import { ConnectionOptions } from 'typeorm';
 
 let client;
 
-function connect(url, config) {
+export function connect(url: any, config: ConnectionOptions): Promise<void> {
   return new Promise((resolve, reject) => {
     client = nats.connect(url, config);
     client.on('connect', () => {
@@ -14,29 +15,21 @@ function connect(url, config) {
   });
 }
 
-function publish(subject, data) {
+export function publish(subject: any, data: Object) {
   client.publish(subject, JSON.stringify(data));
 }
 
-function subscribe(subject, callback) {
+export function subscribe(subject: any, callback: any) {
   return client.subscribe(subject, callback);
 }
 
-function unsubscribe(sid) {
+export function unsubscribe(sid: any) {
   return client.unsubscribe(sid);
 }
 
-function close() {
+export function close() {
   if (!client) {
     return;
   }
   client.close();
 }
-
-module.exports = {
-  connect,
-  publish,
-  subscribe,
-  unsubscribe,
-  close,
-};
