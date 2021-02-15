@@ -5,6 +5,7 @@
     "allowJs": true,
     "target": "ES6",
     "moduleResolution": "Node",
+    "strictNullChecks": true,
   },
   "include": ["./**/*"]
 }

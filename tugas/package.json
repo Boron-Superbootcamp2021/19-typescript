@@ -7,7 +7,7 @@
     "test": "nyc mocha",
     "svc:start": "node .",
     "svc:dev": "nodemon .",
-    "service": "ts-node --project service/tsconfig.json service/server.ts",
+    "service": "ts-node --project service/tsconfig.json service/main.ts",
     "service:dev": "nodemon --config service/nodemon.json",
     "lint": "eslint .",
     "web:build": "webpack --mode production",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/redis": "^2.8.28",
     "css-loader": "^5.0.1",
     "dotenv-webpack": "^6.0.0",
     "eslint": "^7.19.0",
