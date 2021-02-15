@@ -15,7 +15,7 @@ export function connect(options?: redis.ClientOpts) {
   });
 }
 
-export function save(db: string, data): Promise<void> {
+export function save(db: string, data: any): Promise<void> {
   const setAsync = promisify(client.set).bind(client);
   return setAsync(db, data);
 }
