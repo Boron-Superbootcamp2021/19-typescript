@@ -1,46 +1,51 @@
-const {
+import {
   done,
   cancel,
   getList,
   add,
   getWorkersList,
-} = require('./async-action');
-const { store$, errorAction, clearErrorAction } = require('./store');
+} from './async-action';
+import { store$, errorAction, clearErrorAction } from './store';
 
-require('./main.css');
+import './main.css';
+import { State } from './reducer';
+import { loading } from '../performance/reducer';
 
-const form = document.getElementById('form');
+const form = document.getElementById('form') as HTMLFormElement;
 const job = document.getElementById('job');
-const assignee = document.getElementById('assignee');
-const attachment = document.getElementById('attachment');
+const assignee = document.getElementById('assignee') as HTMLSelectElement;
+const attachment = document.getElementById('attachment') as HTMLInputElement;
 const list = document.getElementById('list');
 const errorTxt = document.getElementById('error-text');
 const loadingTxt = document.getElementById('loading-text');
 
-form.onsubmit = (event) => {
-  event.preventDefault();
-  store$.dispatch(clearErrorAction());
-  if (
-    !job.value ||
-    !assignee.options[assignee.selectedIndex] ||
-    !attachment.files[0]
-  ) {
-    store$.dispatch(errorAction('form isian tidak lengkap!'));
-    return;
-  }
-
-  // register user
-  store$.dispatch(
-    add({
-      job: job.value,
-      assignee_id: assignee.options[assignee.selectedIndex].value,
-      attachment: attachment.files[0],
-    })
-  );
-
-  // reset form
-  form.reset();
-};
+if(form&&job&&attachment){
+  form.onsubmit = (event) => {
+    event.preventDefault();
+    store$.dispatch<any>(clearErrorAction());
+    if (
+      !job.nodeValue ||
+      !assignee.options[assignee.selectedIndex] ||
+      !attachment.files
+    ) {
+      store$.dispatch<any>(errorAction('form isian tidak lengkap!'));
+      return;
+    }
+  const idnum = parseInt(assignee.options[assignee.selectedIndex].value)
+    // register user
+    store$.dispatch<any>(
+      add({
+        job: job.nodeValue,
+        assigneeId: idnum,
+        attachment: attachment.files[0].name,
+      })
+    );
+  
+    // reset form
+    form.reset();
+  };
+  
+}
 
 // presentation layer
 store$.subscribe(() => {
@@ -50,20 +55,20 @@ store$.subscribe(() => {
 const state = store$.getState();
 render(state);
 
-store$.dispatch(getList);
-store$.dispatch(getWorkersList);
+store$.dispatch<any>(getList);
+store$.dispatch<any>(getWorkersList);
 
-function render(state) {
+function render(state:State) {
   // render error
-  if (state.error) {
+  if (state.error && errorTxt) {
     errorTxt.textContent = state.error.toString();
-  } else {
+  } else if(errorTxt){
     errorTxt.textContent = '';
   }
-  if (state.loading) {
-    loadingTxt.style = '';
-  } else {
-    loadingTxt.style = 'display:none;';
+  if (state.loading &&loadingTxt) {
+    loadingTxt.style.display = '';
+  } else if(loadingTxt){
+    loadingTxt.style.display = 'none';
   }
 
   // add asignee options
@@ -72,13 +77,15 @@ function render(state) {
     const worker = state.workers[i];
     const option = document.createElement('option');
     option.text = worker.name;
-    option.value = worker.id;
+    option.value = worker.id.toString();
     assignee.add(option);
   }
 
   // render list of worker
-  list.innerHTML = '';
+ if(list){
+  console.log(state.tasks.length)
   for (let i = 0; i < state.tasks.length; i++) {
+    
     const task = state.tasks[i];
     const li = document.createElement('div');
     let innerHtml = `
@@ -93,16 +100,17 @@ function render(state) {
       const cancelBtn = document.createElement('button');
       cancelBtn.innerText = 'batal';
       cancelBtn.onclick = function () {
-        store$.dispatch(cancel(task.id));
+        store$.dispatch<any>(cancel(task.id));
       };
       const doneBtn = document.createElement('button');
       doneBtn.innerText = 'selesai';
       doneBtn.onclick = function () {
-        store$.dispatch(done(task.id));
+        store$.dispatch<any>(done(task.id));
       };
       li.innerHTML = innerHtml;
       li.append(cancelBtn, doneBtn);
     }
     list.append(li);
   }
+ }
 }

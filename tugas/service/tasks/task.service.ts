@@ -1,24 +1,26 @@
-const Busboy = require('busboy');
-const url = require('url');
-const mime = require('mime-types');
-const { Writable } = require('stream');
-const {
+import * as Busboy from 'busboy';
+import * as url from 'url';
+import * as mime from 'mime-types';
+import { Writable } from 'stream';
+import {
   add,
   cancel,
   done,
   list,
   ERROR_TASK_DATA_INVALID,
   ERROR_TASK_NOT_FOUND,
-} = require('./task');
-const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
+  DataTask
+} from './task';
+import { saveFile, readFile, ERROR_FILE_NOT_FOUND } from '../lib/storage';
+import {IncomingMessage,ServerResponse} from 'http'
 
-function addSvc(req, res) {
+export function addSvc(req:IncomingMessage, res:ServerResponse) {
   const busboy = new Busboy({ headers: req.headers });
 
-  const data = {
+  const data:DataTask = {
     job: '',
     assigneeId: 0,
-    attachment: null,
+    attachment: '',
   };
 
   let finished = false;
@@ -88,7 +90,7 @@ function addSvc(req, res) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res) {
+export async function listSvc(req:IncomingMessage, res:ServerResponse) {
   try {
     const tasks = await list();
     res.setHeader('content-type', 'application/json');
@@ -101,8 +103,8 @@ async function listSvc(req, res) {
   }
 }
 
-async function doneSvc(req, res) {
-  const uri = url.parse(req.url, true);
+export async function doneSvc(req:IncomingMessage, res:ServerResponse) {
+  const uri:url.UrlWithParsedQuery = url.parse(req.url!, true);
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
@@ -111,11 +113,15 @@ async function doneSvc(req, res) {
     return;
   }
   try {
-    const task = await done(id);
-    res.setHeader('content-type', 'application/json');
-    res.statusCode = 200;
-    res.write(JSON.stringify(task));
-    res.end();
+    if(typeof id === 'string'){
+      const idnum = parseInt(id)
+      const task = await done(idnum);
+      res.setHeader('content-type', 'application/json');
+      res.statusCode = 200;
+      res.write(JSON.stringify(task));
+      res.end();
+    }
+    
   } catch (err) {
     if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
@@ -129,8 +135,8 @@ async function doneSvc(req, res) {
   }
 }
 
-async function cancelSvc(req, res) {
-  const uri = url.parse(req.url, true);
+export async function cancelSvc(req:IncomingMessage, res:ServerResponse) {
+  const uri:url.UrlWithParsedQuery = url.parse(req.url!, true);
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
@@ -139,11 +145,15 @@ async function cancelSvc(req, res) {
     return;
   }
   try {
-    const task = await cancel(id);
-    res.setHeader('content-type', 'application/json');
-    res.statusCode = 200;
-    res.write(JSON.stringify(task));
-    res.end();
+    if(typeof id === 'string'){
+      const idnum = parseInt(id)
+      const task = await cancel(idnum);
+      res.setHeader('content-type', 'application/json');
+      res.statusCode = 200;
+      res.write(JSON.stringify(task));
+      res.end();
+    }
+    
   } catch (err) {
     if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
@@ -157,9 +167,9 @@ async function cancelSvc(req, res) {
   }
 }
 
-async function getAttachmentSvc(req, res) {
-  const uri = url.parse(req.url, true);
-  const objectName = uri.pathname.replace('/attachment/', '');
+export async function getAttachmentSvc(req:IncomingMessage, res:ServerResponse) {
+  const uri:url.UrlWithParsedQuery = url.parse(req.url!, true);
+  const objectName = uri.pathname!.replace('/attachment/', '');
   if (!objectName) {
     res.statusCode = 400;
     res.write('request tidak sesuai');
@@ -167,9 +177,13 @@ async function getAttachmentSvc(req, res) {
   }
   try {
     const objectRead = await readFile(objectName);
-    res.setHeader('Content-Type', mime.lookup(objectName));
-    res.statusCode = 200;
-    objectRead.pipe(res);
+    let mimeContent = mime.lookup(objectName)
+    if(typeof mimeContent === 'string'){
+      res.setHeader('Content-Type', mimeContent);
+      res.statusCode = 200;
+      objectRead.pipe(res);
+    }
+    
   } catch (err) {
     if (err === ERROR_FILE_NOT_FOUND) {
       res.statusCode = 404;
@@ -184,10 +198,3 @@ async function getAttachmentSvc(req, res) {
   }
 }
 
-module.exports = {
-  listSvc,
-  addSvc,
-  doneSvc,
-  cancelSvc,
-  getAttachmentSvc,
-};
