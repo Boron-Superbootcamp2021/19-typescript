@@ -36,8 +36,8 @@ if(form&&job&&attachment){
     store$.dispatch<any>(
       add({
         job: job.value,
-        assigneeId: idnum,
-        attachment: attachment.files[0].name,
+        assignee_id: idnum,
+        attachment: attachment.files[0],
       })
     );
   

@@ -12,7 +12,7 @@ import * as taskSvc from './task.client';
 import {DataTask} from '../../../service/tasks/task'
 
 
-export const add = (data:DataTask) => async (dispatch:any) => {
+export const add = (data:any) => async (dispatch:any) => {
   dispatch(loadingAction());
   try {
     console.log('sampai sini')
