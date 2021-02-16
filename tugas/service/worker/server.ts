@@ -1,4 +1,4 @@
-import { createServer, IncomingMessage, ServerOptions } from 'http';
+import { createServer, IncomingMessage, Server, ServerOptions, ServerResponse } from 'http';
 import * as url from "url";
 import { stdout } from 'process';
 import {
@@ -9,7 +9,7 @@ import {
   getPhotoSvc,
 } from "./worker.service";
 
-let server;
+let server: Server;
 
 export function run(callback) {
   server = createServer((req, res) => {
@@ -19,14 +19,14 @@ export function run(callback) {
       return;
     }
 
-    function respond(statusCode, message) {
+    function respond(statusCode: number, message: string) {
       res.statusCode = statusCode || 200;
       res.write(message || '');
       res.end();
     }
 
     try {
-      const uri = url.parse(req.url, true);
+      const uri = url.parse(req.url!, true);// tanda ! diakhir variabel tanpa bahwa variabel tersebut pasti ada isinya
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
@@ -57,7 +57,7 @@ export function run(callback) {
           }
           break;
         default:
-          if (/^\/photo\/\w+/.test(uri.pathname)) {
+          if (/^\/photo\/\w+/.test(uri.pathname!)) {
             return getPhotoSvc(req, res);
           }
           respond(404,'Method tidak tersedia');
@@ -81,7 +81,7 @@ export function run(callback) {
   });
 }
 
-export function cors(req, res) {
+export function cors(req: IncomingMessage, res: ServerResponse) {
   // handle preflight request
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');

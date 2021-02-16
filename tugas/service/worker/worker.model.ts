@@ -1,7 +1,7 @@
 import { EntitySchema } from 'typeorm';
 
 export interface Worker {
-  id:number, 
+  id?:number, // karena id worker otomatis di increment maka kadang id tidak di inisiasi
   name:string, 
   age:number, 
   bio:string, 

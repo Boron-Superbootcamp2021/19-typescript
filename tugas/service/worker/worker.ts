@@ -1,19 +1,21 @@
 import { getConnection } from 'typeorm';
 import { Worker } from './worker.model';
-import { bus } from 'busboy';
+import * as bus from '../lib/bus';
 
 export const ERROR_REGISTER_DATA_INVALID = 'data registrasi pekerja tidak lengkap';
 export const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
 
-export async function register(data):Promise<any> {
+
+
+export async function register(data: Worker):Promise<Worker> {
   if (!data.name || !data.age || !data.bio || !data.address || !data.photo) {
     throw ERROR_REGISTER_DATA_INVALID;
   }
   const workerRepo = getConnection().getRepository('Worker');
   const worker = new Worker(
-    null,
+    0,
     data.name,
-    parseInt(data.age, 10),
+    data.age,
     data.bio,
     data.address,
     data.photo
@@ -27,8 +29,8 @@ export function list() {
   const workerRepo = getConnection().getRepository('Worker');
   return workerRepo.find();
 }
-
-export async function info(id:number):Promise<any> {
+// hasil dari uri.query itu ternyata berupa string/arraystring
+export async function info(id:string|string[]):Promise<Worker|unknown> {
   const workerRepo = getConnection().getRepository('Worker');
   const worker = await workerRepo.findOne(id);
   if (!worker) {
@@ -37,7 +39,8 @@ export async function info(id:number):Promise<any> {
   return worker;
 }
 
-export async function remove(id: number):Promise<any> {
+// hasil dari uri.query itu ternyata berupa string/arraystring
+export async function remove(id: string|string[]):Promise<Worker|unknown> {
   const workerRepo = getConnection().getRepository('Worker');
   const worker = await workerRepo.findOne(id);
   if (!worker) {

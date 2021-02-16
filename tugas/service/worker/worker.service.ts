@@ -2,6 +2,7 @@ import { Busboy } from 'busboy';
 import * as url  from 'url';
 import { mime } from 'mime-types';
 import { Writable } from 'stream';
+import { Worker } from './worker.model';
 import {
   register,
   list,
@@ -16,8 +17,8 @@ import { IncomingMessage, ServerResponse } from 'http';
 export function registerSvc(req: IncomingMessage, res: ServerResponse) {
   const busboy = new Busboy({ headers: req.headers });
 
-  const data = {
-    name: '',
+  const data:Worker = {
+    name:'',
     age: 0,
     bio: '',
     address: '',
@@ -34,15 +35,15 @@ export function registerSvc(req: IncomingMessage, res: ServerResponse) {
     }
   }
 
-  busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
+  busboy.on('file', async (fieldname: any, file: { pipe: (arg0: Writable) => void; }, filename: any, encoding: any, mimetype: string) => {
     switch (fieldname) {
       case 'photo':
-        // if(!data.photo) {
-        //   res.statusCode = 400;
-        //   res.write('Worker doesnt have a photo');
-        //   res.end();
-        //   return;
-        // }
+        if(!data.photo) {
+          res.statusCode = 400;
+          res.write('Worker doesnt have a photo');
+          res.end();
+          return;
+        }
         try {
           data.photo = await saveFile(file, mimetype);
         } catch (err) {
@@ -75,7 +76,7 @@ export function registerSvc(req: IncomingMessage, res: ServerResponse) {
     }
   });
 
-  busboy.on('field', (fieldname, val) => {
+  busboy.on('field', (fieldname: string, val: any) => {
     if (['name', 'age', 'bio', 'address'].includes(fieldname)) {
       data[fieldname] = val;
     }
@@ -105,7 +106,7 @@ export async function listSvc(req:IncomingMessage, res: ServerResponse): Promise
 }
 
 export async function infoSvc(req:IncomingMessage, res:ServerResponse):Promise<void> {
-  const uri = url.parse(req.url, true);
+  const uri = url.parse(req.url!, true);// tanda ! diakhir variabel tanpa bahwa variabel tersebut pasti ada isinya
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
@@ -132,7 +133,7 @@ export async function infoSvc(req:IncomingMessage, res:ServerResponse):Promise<v
 }
 
 export async function removeSvc(req:IncomingMessage, res:ServerResponse):Promise<void> {
-  const uri = url.parse(req.url, true);
+  const uri = url.parse(req.url!, true);// tanda ! diakhir variabel tanpa bahwa variabel tersebut pasti ada isinya
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
@@ -160,15 +161,15 @@ export async function removeSvc(req:IncomingMessage, res:ServerResponse):Promise
 }
 
 export async function getPhotoSvc(req:IncomingMessage, res:ServerResponse):Promise<void> {
-  const uri = url.parse(req.url, true);
-  const objectName = uri.pathname.replace('/photo/', '');
+  const uri = url.parse(req.url!, true);
+  const objectName = uri.pathname?.replace('/photo/', '');
   if (!objectName) {
     res.statusCode = 400;
     res.write('request tidak sesuai');
     res.end();
   }
   try {
-    const objectRead = await readFile(objectName);
+    const objectRead = await readFile(objectName!);
     res.setHeader('Content-Type', mime.lookup(objectName));
     res.statusCode = 200;
     objectRead.pipe(res);
