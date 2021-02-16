@@ -15,7 +15,10 @@ import {DataTask} from '../../../service/tasks/task'
 export const add = (data:DataTask) => async (dispatch:any) => {
   dispatch(loadingAction());
   try {
+    console.log('sampai sini')
+
     const task = await taskSvc.add(data);
+    console.log('sampai sini',task)
     dispatch(addedAction(task));
   } catch (err) {
     dispatch(errorAction(`gagal menambahkan ${data.job}`));

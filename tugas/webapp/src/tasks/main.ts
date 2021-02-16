@@ -12,7 +12,7 @@ import { State } from './reducer';
 import { loading } from '../performance/reducer';
 
 const form = document.getElementById('form') as HTMLFormElement;
-const job = document.getElementById('job');
+const job = document.getElementById('job') as HTMLInputElement;
 const assignee = document.getElementById('assignee') as HTMLSelectElement;
 const attachment = document.getElementById('attachment') as HTMLInputElement;
 const list = document.getElementById('list');
@@ -24,9 +24,9 @@ if(form&&job&&attachment){
     event.preventDefault();
     store$.dispatch<any>(clearErrorAction());
     if (
-      !job.nodeValue ||
+      !job.value ||
       !assignee.options[assignee.selectedIndex] ||
-      !attachment.files
+      !attachment.files || !attachment.files[0]
     ) {
       store$.dispatch<any>(errorAction('form isian tidak lengkap!'));
       return;
@@ -35,7 +35,7 @@ if(form&&job&&attachment){
     // register user
     store$.dispatch<any>(
       add({
-        job: job.nodeValue,
+        job: job.value,
         assigneeId: idnum,
         attachment: attachment.files[0].name,
       })
@@ -83,9 +83,9 @@ function render(state:State) {
 
   // render list of worker
  if(list){
-  console.log(state.tasks.length)
+   list.innerHTML = '';
   for (let i = 0; i < state.tasks.length; i++) {
-    
+    console.log('dari render',state.tasks.length)
     const task = state.tasks[i];
     const li = document.createElement('div');
     let innerHtml = `
