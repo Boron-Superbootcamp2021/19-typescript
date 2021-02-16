@@ -1,27 +1,27 @@
-const { SERVICE_BASEURL } = require('./config');
+import { SERVICE_BASEURL } from './config';
 
 // setup state
-const initialState = {
+export const initialState= {
   loading: false,
   error: null,
   workers: [],
 };
 
-function loading(state) {
+export function loading(state) {
   state.loading = true;
   state.error = null;
 }
 
-function error(state, action) {
+export function error(state, action) {
   state.loading = false;
   state.error = action.payload;
 }
 
-function clearError(state) {
+export function clearError(state) {
   state.error = null;
 }
 
-function registered(state, action) {
+export function registered(state, action) {
   const worker = action.payload;
   state.workers.push({
     id: worker.id,
@@ -34,7 +34,7 @@ function registered(state, action) {
   return state;
 }
 
-function removed(state, action) {
+export function removed(state, action) {
   const idx = state.workers.findIndex((t) => t.id === action.payload);
   state.workers.splice(idx, 1);
   state.loading = false;
@@ -42,7 +42,7 @@ function removed(state, action) {
   return state;
 }
 
-function workersLoaded(state, action) {
+export function workersLoaded(state, action) {
   state.workers = action.payload.map((worker) => ({
     id: worker.id,
     name: worker.name,
@@ -53,13 +53,3 @@ function workersLoaded(state, action) {
   state.error = null;
   return state;
 }
-
-module.exports = {
-  initialState,
-  registered,
-  removed,
-  workersLoaded,
-  error,
-  loading,
-  clearError,
-};

@@ -1,19 +1,21 @@
-const { getConnection } = require('typeorm');
-const { Worker } = require('./worker.model');
-const bus = require('../lib/bus');
+import { getConnection } from 'typeorm';
+import { Worker } from './worker.model';
+import * as bus from '../lib/bus';
 
-const ERROR_REGISTER_DATA_INVALID = 'data registrasi pekerja tidak lengkap';
-const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
+export const ERROR_REGISTER_DATA_INVALID = 'data registrasi pekerja tidak lengkap';
+export const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
 
-async function register(data) {
+
+
+export async function register(data: Worker):Promise<Worker> {
   if (!data.name || !data.age || !data.bio || !data.address || !data.photo) {
     throw ERROR_REGISTER_DATA_INVALID;
   }
   const workerRepo = getConnection().getRepository('Worker');
   const worker = new Worker(
-    null,
+    0,
     data.name,
-    parseInt(data.age, 10),
+    data.age,
     data.bio,
     data.address,
     data.photo
@@ -23,12 +25,12 @@ async function register(data) {
   return worker;
 }
 
-function list() {
+export function list() {
   const workerRepo = getConnection().getRepository('Worker');
   return workerRepo.find();
 }
-
-async function info(id) {
+// hasil dari uri.query itu ternyata berupa string/arraystring
+export async function info(id:string|string[]):Promise<Worker|unknown> {
   const workerRepo = getConnection().getRepository('Worker');
   const worker = await workerRepo.findOne(id);
   if (!worker) {
@@ -37,7 +39,8 @@ async function info(id) {
   return worker;
 }
 
-async function remove(id) {
+// hasil dari uri.query itu ternyata berupa string/arraystring
+export async function remove(id: string|string[]):Promise<Worker|unknown> {
   const workerRepo = getConnection().getRepository('Worker');
   const worker = await workerRepo.findOne(id);
   if (!worker) {
@@ -47,12 +50,3 @@ async function remove(id) {
   bus.publish('worker.removed', worker);
   return worker;
 }
-
-module.exports = {
-  register,
-  list,
-  remove,
-  info,
-  ERROR_REGISTER_DATA_INVALID,
-  ERROR_WORKER_NOT_FOUND,
-};
