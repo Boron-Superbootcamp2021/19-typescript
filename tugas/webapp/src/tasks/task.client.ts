@@ -5,7 +5,7 @@ import {DataTask} from '../../../service/tasks/task'
 import {TaskInterface,WorkerInterface} from '../../../service/tasks/task.model';
 
 
-export function add(data:DataTask):Promise<TaskInterface> {
+export function add(data:any):Promise<TaskInterface> {
   return client.post(`${SERVICE_BASEURL}/add`, data);
 }
 
